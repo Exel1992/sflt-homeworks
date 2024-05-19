@@ -1,19 +1,67 @@
-# Домашние задания по модулю  «Отказоустойчивость»
-
-В этом репозитории расположены ваши домашние задания к каждой лекции. 
-
-Обязательны к выполнению задачи без звездочек. Их нужно выполнить, чтобы получить зачёт.
-
-Задачи со звёздочкой (*) — дополнительные задачи или задачи повышенной сложности. Их выполнять не обязательно, но они помогут вам глубже понять тему.
-
-Любые вопросы по решению задач задавайте в чате учебной группы. Ссылку вы найдёте в письме на вашей электронной почте.
+# Домашнее задание к занятию "Disaster recovery и Keepalived" - Тихомиров Алексей
 
 
-1. [Disaster recovery и Keepalived](1.md)
+### Задание 1
 
-2. [Кластеризация и балансировка нагрузки](2.md)
+[Схема CPT](https://github.com/Exel1992/sflt-homeworks/blob/main/hsrp_advanced_test.pkt)
 
-3. [Резервное копирование](3.md)
+![Настройка маршрутизатора](https://github.com/Exel1992/sflt-homeworks/blob/main/Sh%20r.png)
 
-4. [Отказоустойчивость в облаке](4.md)
+---
 
+### Задание 2
+
+[Bash скрипт]
+```
+#!/bin/bash
+
+my_index=`test -f /var/www/html/index.html && echo $?`
+my_port=`bash -c "</dev/tcp/localhost/80" && echo $?`
+
+if [ $my_index -eq 0 ] && [ $my_port -eq 0 ]; then
+       exit 0
+else
+      exit 1
+fi
+
+```
+
+[Keepalived.conf на MASTER]
+
+```
+lobal_defs {
+    script_user root
+    enable_script_security
+
+}
+
+vrrp_script check_script {
+        script "/etc/keepalived/check_script.sh"
+        interval 3
+
+}
+
+vrrp_instance VI_1 {
+        state MASTER
+        interface enp0s3
+        virtual_router_id 115
+        priority 255
+        advert_int 1
+
+        virtual_ipaddress {
+              192.168.0.115/24
+        }
+
+        track_script {
+            check_script
+        }
+
+}
+
+```
+
+![Master-Status](https://github.com/Exel1992/sflt-homeworks/blob/main/Master-backup_1.png)
+
+![Master->Backup](https://github.com/Exel1992/sflt-homeworks/blob/main/Master-backup_2.png)
+
+---
